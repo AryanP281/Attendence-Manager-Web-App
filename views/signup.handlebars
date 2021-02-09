@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Attendence Manager - Sign Up</title>
+</head>
+<body style="background-color: #3599dc;">
+
+    <div class="auth_form_area">
+        <form action="/register" method="POST">
+            <label class="auth_title">Sign Up</label><br>
+            <input type="text" name="signup_email" class="auth_textbox" placeholder="Email"><br>
+            <input type="password" name="signup_pss" class="auth_textbox" placeholder="Password"><br>
+            <input type="submit" class="auth_submit" value="Sign Up">
+        </form>
+        <a href="/login">Already have an account ? Login</a>
+        {{#if error}}
+            <p class="auth_error_alert">{{error}}</p>
+        {{/if}}
+    </div>
+</body>
+</html>

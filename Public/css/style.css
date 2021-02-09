@@ -1,0 +1,198 @@
+
+
+body{
+    display: block;
+    margin: auto;
+}
+
+.navBar{
+    display: block;
+    background-color:#3599dc;
+    height: 10vh;
+    padding:15px;
+    border: 2px solid black;
+}
+
+#home_title{
+    display: block;
+    font-size: 25px;
+    text-align: center;
+    font-family: cursive;
+}
+
+#home_logout_btn{
+   display: block;
+   margin-left: auto;
+   font-size: large;
+   border-radius: 4px;
+   font-family: cursive;
+}
+
+#home_working_area{
+    display: block;
+    background-color: blue;
+    height: 100vh;
+}
+
+#subject_list_area{
+    display: inline;
+    background-color: chartreuse;
+    width: 50%;
+    height: 100%;
+    position:absolute;
+    left: 0;
+}
+
+#subject_details_area{
+    display: inline;
+    background-color: teal;
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    left: 50%;
+    outline: 2px solid yellow;
+}
+
+#new_subject_card{
+    display: block;
+    padding: 10px;
+    position: absolute;
+    width: 100%;
+    height: 11%;
+    overflow-y: auto;
+    border: 2px solid black;
+}
+
+#new_subject_dets{
+    display: inline;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 75%;
+    height: 100%;
+    padding-left: 6px;
+    outline: 2px solid red;
+}
+
+#new_subject_controls{
+    display: inline;
+    position: absolute;
+    left: 75%;
+    top: 0;
+    width: 25%;
+    height: 100%;
+}
+
+#new_subject_att_dets{
+    display: block;
+    margin-top: 8px;
+}
+
+.subject_card_title_txt{
+    display: inline;
+    font-size: 20px;
+    font-family: cursive;
+    font-weight: bolder;
+}
+
+#new_subject_name{
+    display: inline;
+}
+
+
+.subject_card_attended_txt{
+    display: inline;
+    font-size: 20px;
+    font-family: cursive;
+    font-weight: bolder;
+}
+
+#new_subject_attended{
+    display: inline;
+}
+
+.subject_card_total_txt{
+    display: inline;
+    font-size: 20px;
+    font-family: cursive;
+    font-weight: bolder;
+    margin-left: 8px;
+}
+
+#new_subject_total{
+    display: inline;
+}
+
+.subject_card_target_txt{
+    display: inline;
+    font-size: 20px;
+    font-family: cursive;
+    font-weight: bolder;
+}
+
+#new_subject_target{
+    display: inline;
+}
+
+#new_subject_create_btn{
+    display: block;
+    margin: auto;
+    padding: 8px;
+    font-size: 25px;
+    font-family: cursive;
+    margin-top: 10%;
+}
+
+.auth_form_area
+{
+    display: block;
+    background-color: white;
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    width: 30%;
+    text-align: center;
+    overflow-y: auto;
+    margin: auto;
+    border-radius: 5px;
+    padding: 5%;
+}
+
+.auth_title{
+    display: block;
+    font-size: 50px;
+    color: grey;
+}
+
+.auth_textbox{
+    display: block;
+    margin-top: auto;
+    width: 90%;
+    font-size: 25px;
+    background-color: #f2f2f2;
+    border: 0px;
+    padding: 8px;
+}
+
+.auth_submit{
+    display: block;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 94%;
+    padding:8px;
+    background-color: #3598dc;
+    color: white;
+    border: 0px;
+    font-size: 25px;
+}
+
+.auth_error_alert{
+    color: red;
+    font-style: italic;
+}
+
+.auth_form_area #forgot_password{
+    float:left;
+    display: block;
+    margin-bottom: 10px;
+}
