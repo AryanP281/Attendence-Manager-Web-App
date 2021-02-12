@@ -97,9 +97,29 @@ function subscribeUserToSubject(userEmail,subject)
     })
 }
 
+function getAllSubscribed(userEmail)
+{
+    /*Returns a promise for retrieving all the subjects subscribed to by the user*/
+
+    "SELECT * FROM Takes,Subject WHERE Subject.id=Takes.id AND"
+
+    const sqlQuery = `SELECT * FROM ${USER_SUBJECT_REL_TABLE},${SUBJECT_TABLE} WHERE 
+    ${USER_SUBJECT_REL_TABLE}.${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${SUBJECT_TABLE_PK}=${USER_SUBJECT_REL_TABLE}.${USER_SUBJECT_REL_PK[1]}`;
+
+    return new Promise((resolve,reject) => {
+        APP.dbConn.query(sqlQuery, (error,result,fields) => {
+            if(error)
+                reject(error);
+            else
+                resolve(result); //Returning the subscribed subjects
+        })
+    });
+}
+
 /***********************Exports***********************/
 module.exports.getSubjectId = getSubjectId;
 module.exports.generateNewSubjectId = generateNewSubjectId;
 module.exports.addNewSubject = addNewSubject;
 module.exports.checkIfUserSubscribed = checkIfUserSubscribed;
 module.exports.subscribeUserToSubject = subscribeUserToSubject;
+module.exports.getAllSubscribed = getAllSubscribed;

@@ -53,13 +53,104 @@ body{
     outline: 2px solid yellow;
 }
 
-#new_subject_card{
+
+#subject_cards {
+    display: block;
+    background-color: blueviolet;
+    height: 100%;
+}
+
+.subject_card{
+    display: block;
+    background-color: aliceblue;
+    border: 2px solid black;
+    height: 11%;
+    overflow-x: auto;
+    padding: 4px;
+}
+
+.subject_card_dets{
+    display: inline;
+}
+
+.subject_card_controls{
+    display: inline;
+    float: right;
+}
+
+.subject_card_title_txt{
+    display: inline;
+    font-size: 25px;
+    font-family: cursive;
+    font-weight: bolder;
+}
+
+.subject_card_attended_txt{
+    display: inline;
+    font-size: 15px;
+    font-family: cursive;
+    font-weight: bolder;
+}
+
+.auth_form_area
+{
+    display: block;
+    background-color: white;
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    width: 30%;
+    text-align: center;
+    overflow-y: auto;
+    margin: auto;
+    border-radius: 5px;
+    padding: 5%;
+}
+
+.auth_title{
+    display: block;
+    font-size: 50px;
+    color: grey;
+}
+
+.auth_textbox{
+    display: block;
+    margin-top: auto;
+    width: 90%;
+    font-size: 25px;
+    background-color: #f2f2f2;
+    border: 0px;
+    padding: 8px;
+}
+
+.auth_submit{
+    display: block;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 94%;
+    padding:8px;
+    background-color: #3598dc;
+    color: white;
+    border: 0px;
+    font-size: 25px;
+}
+
+.auth_error_alert{
+    color: red;
+    font-style: italic;
+}
+
+.auth_form_area #forgot_password{
+    float:left;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/*#new_subject_card{
     display: block;
     padding: 10px;
-    position: absolute;
     width: 100%;
-    height: 11%;
-    overflow-y: auto;
+    height: 11%; 
     border: 2px solid black;
 }
 
@@ -71,7 +162,6 @@ body{
     width: 75%;
     height: 100%;
     padding-left: 6px;
-    outline: 2px solid red;
 }
 
 #new_subject_controls{
@@ -141,58 +231,4 @@ body{
     font-size: 25px;
     font-family: cursive;
     margin-top: 10%;
-}
-
-.auth_form_area
-{
-    display: block;
-    background-color: white;
-    position: absolute;
-    top: 20%;
-    left: 30%;
-    width: 30%;
-    text-align: center;
-    overflow-y: auto;
-    margin: auto;
-    border-radius: 5px;
-    padding: 5%;
-}
-
-.auth_title{
-    display: block;
-    font-size: 50px;
-    color: grey;
-}
-
-.auth_textbox{
-    display: block;
-    margin-top: auto;
-    width: 90%;
-    font-size: 25px;
-    background-color: #f2f2f2;
-    border: 0px;
-    padding: 8px;
-}
-
-.auth_submit{
-    display: block;
-    margin-bottom: 10px;
-    margin-top: 10px;
-    width: 94%;
-    padding:8px;
-    background-color: #3598dc;
-    color: white;
-    border: 0px;
-    font-size: 25px;
-}
-
-.auth_error_alert{
-    color: red;
-    font-style: italic;
-}
-
-.auth_form_area #forgot_password{
-    float:left;
-    display: block;
-    margin-bottom: 10px;
-}
+}*/

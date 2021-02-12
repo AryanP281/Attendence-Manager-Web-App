@@ -102,14 +102,34 @@ function subscribeUser(userEmail, subject, resp)
 
 }
 
+function getCards(subjects)
+{
+    /*Returns info that can be displayed in cards for the given subject objects*/
+
+    
+}
+
 /*************************Routing****************************/
 router.get("/", (req,resp) => {
 
     /*Home Page*/
+
+    const userEmail = req.cookies[`${USER_ID_COOKIE_KEY}`]; //The email of the logged user who has sent the request 
     
-    if(req.cookies[`${USER_ID_COOKIE_KEY}`])
+    //Checking if the user is logged in
+    if(userEmail)
     {
-        resp.render("home");
+        const promise = DB.getAllSubscribed(userEmail);
+        promise.then((result) => {
+            for(let a = 0; a < result.length; ++a)
+            {
+                result[a].percentage = result[a].attendedLecs * 100 / result[a].totalLecs;
+            }
+            console.log(result);
+            resp.render("home", {subjects:result})
+        }).catch((err) => console.log(err));
+        
+        //resp.render("home");
     }
     else
         resp.redirect("/login");
@@ -202,4 +222,9 @@ router.post("/newSubject", (req,resp) => {
 
 });
 
+router.post("/present", (req,resp) => {
+    
+})
+
+/***********************Exports*************************/
 module.exports = router;

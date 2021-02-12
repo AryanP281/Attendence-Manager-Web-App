@@ -14,7 +14,34 @@
 
     <div id="home_working_area">
         <div id="subject_list_area">
-            <div id="new_subject_card">
+            <div id="subject_cards">
+                {{#each subjects}}
+                    <div class="subject_card">
+                        <div class="subject_card_dets">
+                            <label class="subject_card_title_txt">{{name}}</label><br>
+                            <label class="subject_card_attended_txt">Attendence: {{attendedLecs}}/{{totalLecs}}</label><br>
+                            <label class="subject_card_attended_txt">Target: {{target}}%,</label>
+                            <label class="subject_card_attended_txt">Current: {{percentage}}%</label>
+                        </div>
+                        <div class="subject_card_controls">
+                            <button class="subject_control_present" id="{{subjectId}}">Present</button>
+                            <button class="subject_control_absent" id={{subjectId}}>Absent</button>
+                            <button class="subject_control_cancelled" id="{{subjectId}}">Cancelled</button>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>    
+        </div>
+        <div id="subject_details_area">
+        </div>
+    </div>
+
+    <script src="scripts/HomePage.js"></script>
+</body>
+</html>
+
+<!--
+<div id="new_subject_card">
                 <form action="/newSubject" method="POST">
                     <div id="new_subject_dets">
                         <label class="subject_card_title_txt">Subject Name:</label>
@@ -33,11 +60,4 @@
                     </div>
                 </form>
             </div>
-        </div>
-        <div id="subject_details_area">
-        </div>
-    </div>
-
-    <script src="scripts/HomePage.js"></script>
-</body>
-</html>
+    -->
