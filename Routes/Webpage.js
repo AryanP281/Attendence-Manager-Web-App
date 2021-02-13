@@ -102,13 +102,6 @@ function subscribeUser(userEmail, subject, resp)
 
 }
 
-function getCards(subjects)
-{
-    /*Returns info that can be displayed in cards for the given subject objects*/
-
-    
-}
-
 /*************************Routing****************************/
 router.get("/", (req,resp) => {
 
@@ -120,16 +113,22 @@ router.get("/", (req,resp) => {
     if(userEmail)
     {
         const promise = DB.getAllSubscribed(userEmail);
-        promise.then((result) => {
-            for(let a = 0; a < result.length; ++a)
+        promise.then((results) => {
+            
+            //Calculating the subject attendence parcentages
+            for(let a = 0; a < results.length; ++a)
             {
-                result[a].percentage = result[a].attendedLecs * 100 / result[a].totalLecs;
+                results[a].percentage = parseInt(results[a].attendedLecs * 100 / results[a].totalLecs);
             }
-            console.log(result);
-            resp.render("home", {subjects:result})
+
+            //Sorting the results based on attendence percentage
+            results.sort((subj1, subj2) => {
+                return (subj1.percentage - subj1.target) - (subj2.percentage - subj2.target);
+            });
+
+            resp.render("home", {subjects:results})
         }).catch((err) => console.log(err));
         
-        //resp.render("home");
     }
     else
         resp.redirect("/login");
@@ -222,9 +221,25 @@ router.post("/newSubject", (req,resp) => {
 
 });
 
-router.post("/present", (req,resp) => {
+router.post("/present/:id", (req, resp) => {
     
-})
+    /*Increases the attendence of the given subject for the user*/
+
+    const subjectAttendencePromise = DB.markPresent(req.cookies[`${USER_ID_COOKIE_KEY}`], req.params.id);
+
+    subjectAttendencePromise.then(() => resp.redirect("/")).catch((err) => console.log(err));
+
+});
+
+router.post("/absent/:id", (req, resp) => {
+    
+    /*Decreases the attendence of the given subject for the user*/
+
+    const subjectAttendencePromise = DB.markAbsent(req.cookies[`${USER_ID_COOKIE_KEY}`], req.params.id);
+
+    subjectAttendencePromise.then(() => resp.redirect("/")).catch((err) => console.log(err));
+});
+
 
 /***********************Exports*************************/
 module.exports = router;

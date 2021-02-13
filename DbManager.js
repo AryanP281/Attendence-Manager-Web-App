@@ -8,6 +8,7 @@ const SUBJECT_TABLE_PK = "id";
 
 const USER_SUBJECT_REL_TABLE = "Takes";
 const USER_SUBJECT_REL_PK = ["email", "subjectId"];
+const USER_SUBJECT_REL_FIELDS = ["totalLecs", "attendedLecs", "target"];
 
 /***********************Functions***********************/
 
@@ -116,6 +117,38 @@ function getAllSubscribed(userEmail)
     });
 }
 
+function markPresent(userEmail, subjectId)
+{
+    /*Increases the attendence of the given subject for the given user*/
+
+    const sqlQuery = `UPDATE ${USER_SUBJECT_REL_TABLE} SET ${USER_SUBJECT_REL_FIELDS[0]}=${USER_SUBJECT_REL_FIELDS[0]}+1, ${USER_SUBJECT_REL_FIELDS[1]}=${USER_SUBJECT_REL_FIELDS[1]}+1 WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId};`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (error) => {
+            if(error)
+                reject(error);
+            else
+                resolve();
+        })
+    })
+}
+
+function markAbsent(userEmail, subjectId)
+{
+    /*Decreases the attendence of the given subject for the given user*/
+
+    const sqlQuery = `UPDATE ${USER_SUBJECT_REL_TABLE} SET ${USER_SUBJECT_REL_FIELDS[0]}=${USER_SUBJECT_REL_FIELDS[0]}+1 WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId};`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (error) => {
+            if(error)
+                reject(error);
+            else
+                resolve();
+        })
+    })
+}
+
 /***********************Exports***********************/
 module.exports.getSubjectId = getSubjectId;
 module.exports.generateNewSubjectId = generateNewSubjectId;
@@ -123,3 +156,5 @@ module.exports.addNewSubject = addNewSubject;
 module.exports.checkIfUserSubscribed = checkIfUserSubscribed;
 module.exports.subscribeUserToSubject = subscribeUserToSubject;
 module.exports.getAllSubscribed = getAllSubscribed;
+module.exports.markPresent = markPresent;
+module.exports.markAbsent = markAbsent;

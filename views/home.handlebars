@@ -14,6 +14,23 @@
 
     <div id="home_working_area">
         <div id="subject_list_area">
+            <div id="new_subject_card">
+                <form action="/newSubject" method="POST">
+                    <div id="new_subject_dets">
+                        <label class="subject_card_title_txt">Name: </label>
+                        <input type="text" name="new_subject_name"><br>
+                        <label class="subject_card_attended_txt">Attended: </label>
+                        <input type="text" name="new_subject_attended"><br>
+                        <label class="subject_card_attended_txt">Total: </label>
+                        <input type="text" name="new_subject_total"><br>
+                        <label class="subject_card_attended_txt">Target: </label>
+                        <input type="text" name="new_subject_target">
+                    </div>
+                    <div id="new_subject_controls">
+                        <input type="submit">
+                    </div>
+                </form>
+            </div>
             <div id="subject_cards">
                 {{#each subjects}}
                     <div class="subject_card">
@@ -24,9 +41,10 @@
                             <label class="subject_card_attended_txt">Current: {{percentage}}%</label>
                         </div>
                         <div class="subject_card_controls">
-                            <button class="subject_control_present" id="{{subjectId}}">Present</button>
-                            <button class="subject_control_absent" id={{subjectId}}>Absent</button>
-                            <button class="subject_control_cancelled" id="{{subjectId}}">Cancelled</button>
+                            <form method="POST">
+                                <button type="submit" formaction="/present/{{subjectId}}">Present</button>
+                                <button type="submit" formaction="/absent/{{subjectId}}">Absent</button>
+                            </form>
                         </div>
                     </div>
                 {{/each}}

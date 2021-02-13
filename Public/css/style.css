@@ -31,7 +31,7 @@ body{
 #home_working_area{
     display: block;
     background-color: blue;
-    height: 100vh;
+    height: 100%;
 }
 
 #subject_list_area{
@@ -41,6 +41,7 @@ body{
     height: 100%;
     position:absolute;
     left: 0;
+    overflow: scroll;
 }
 
 #subject_details_area{
@@ -49,7 +50,7 @@ body{
     width: 50%;
     height: 100%;
     position: absolute;
-    left: 50%;
+    right: 0;
     outline: 2px solid yellow;
 }
 
@@ -90,6 +91,24 @@ body{
     font-size: 15px;
     font-family: cursive;
     font-weight: bolder;
+}
+
+#new_subject_card{
+    display: block;
+    height: 15%;
+    background-color: aliceblue;
+    overflow: auto;
+    padding: 4px;
+    border: 2px solid black;
+}
+
+#new_subject_dets{
+    display: inline;
+}
+
+#new_subject_controls{
+    display: inline;
+    float: right;
 }
 
 .auth_form_area
@@ -145,90 +164,3 @@ body{
     display: block;
     margin-bottom: 10px;
 }
-
-/*#new_subject_card{
-    display: block;
-    padding: 10px;
-    width: 100%;
-    height: 11%; 
-    border: 2px solid black;
-}
-
-#new_subject_dets{
-    display: inline;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 75%;
-    height: 100%;
-    padding-left: 6px;
-}
-
-#new_subject_controls{
-    display: inline;
-    position: absolute;
-    left: 75%;
-    top: 0;
-    width: 25%;
-    height: 100%;
-}
-
-#new_subject_att_dets{
-    display: block;
-    margin-top: 8px;
-}
-
-.subject_card_title_txt{
-    display: inline;
-    font-size: 20px;
-    font-family: cursive;
-    font-weight: bolder;
-}
-
-#new_subject_name{
-    display: inline;
-}
-
-
-.subject_card_attended_txt{
-    display: inline;
-    font-size: 20px;
-    font-family: cursive;
-    font-weight: bolder;
-}
-
-#new_subject_attended{
-    display: inline;
-}
-
-.subject_card_total_txt{
-    display: inline;
-    font-size: 20px;
-    font-family: cursive;
-    font-weight: bolder;
-    margin-left: 8px;
-}
-
-#new_subject_total{
-    display: inline;
-}
-
-.subject_card_target_txt{
-    display: inline;
-    font-size: 20px;
-    font-family: cursive;
-    font-weight: bolder;
-}
-
-#new_subject_target{
-    display: inline;
-}
-
-#new_subject_create_btn{
-    display: block;
-    margin: auto;
-    padding: 8px;
-    font-size: 25px;
-    font-family: cursive;
-    margin-top: 10%;
-}*/
