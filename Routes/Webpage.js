@@ -129,7 +129,7 @@ router.get("/", (req,resp) => {
             resp.render("home", {subjects:results})
         }).catch((err) => console.log(err));
         
-    }
+    } 
     else
         resp.redirect("/login");
 
@@ -240,6 +240,11 @@ router.post("/absent/:id", (req, resp) => {
     subjectAttendencePromise.then(() => resp.redirect("/")).catch((err) => console.log(err));
 });
 
+router.get("/deleteSubject/:id", (req, resp) => {
+    /*Unsubscribes the user from given subject*/
+
+    
+})
 
 /***********************Exports*************************/
 module.exports = router;

@@ -50,8 +50,10 @@ body{
     width: 50%;
     height: 100%;
     position: absolute;
+    opacity: 0;
     right: 0;
     outline: 2px solid yellow;
+    overflow-y: hidden;
 }
 
 
@@ -109,6 +111,35 @@ body{
 #new_subject_controls{
     display: inline;
     float: right;
+}
+
+#subject_toolbar{
+    display: block;
+    height: 6%;
+    background-color: white;
+    padding: 1%;
+    border: 2px solid black;
+}
+
+#calendar_header{
+    display: block;
+    text-align: center;
+    font-size: 25px;
+    background-color:#3598dc;
+    border: 2px solid black;
+}
+
+#calendar_body{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar_cell{
+    display: inline;
+    background-color:white;
+    padding: 16px;
+    border: 2px solid black;
+    text-align: center;
 }
 
 .auth_form_area

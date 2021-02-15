@@ -33,7 +33,7 @@
             </div>
             <div id="subject_cards">
                 {{#each subjects}}
-                    <div class="subject_card">
+                    <div class="subject_card" id="{{subjectId}}">
                         <div class="subject_card_dets">
                             <label class="subject_card_title_txt">{{name}}</label><br>
                             <label class="subject_card_attended_txt">Attendence: {{attendedLecs}}/{{totalLecs}}</label><br>
@@ -51,6 +51,19 @@
             </div>    
         </div>
         <div id="subject_details_area">
+            <div id="subject_toolbar">
+                <button style="float: left; height:100%;">Undo</button>
+                <button style="float: right; height:100%" onclick="deleteSubject()">Delete</button>
+            </div>
+            <div id="calendar" style="display: block;">
+                <div id="calendar_header">
+                    <button id="prev_month" style="float: left; font-size:79%;" onclick="switchToPrevMonth()">Prev</button>
+                    <label id="calendar_title"></label>
+                    <button id="next_month" style="float: right; font-size: 79%;" onclick="switchToNextMonth()">Next</button>
+                </div>
+                <div id="calendar_body">
+                </div>
+            </div>
         </div>
     </div>
 

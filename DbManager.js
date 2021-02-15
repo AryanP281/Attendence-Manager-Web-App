@@ -149,6 +149,13 @@ function markAbsent(userEmail, subjectId)
     })
 }
 
+function unsubscribeUser(userEmail, subjectId)
+{
+    /*Unsubscribes the user from the given subject*/
+
+    
+}
+
 /***********************Exports***********************/
 module.exports.getSubjectId = getSubjectId;
 module.exports.generateNewSubjectId = generateNewSubjectId;
