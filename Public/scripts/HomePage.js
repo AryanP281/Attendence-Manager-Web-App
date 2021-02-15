@@ -164,7 +164,26 @@ function deleteSubject()
 
   const deletePromise = fetch(`/deleteSubject/${currSubject}`)
 
-  deletePromise.then(() => window.location.href = "/").catch((err) => console.log(err));
+  deletePromise.then(() => removeSubjectCard()).catch((err) => console.log(err));
+}
+
+function removeSubjectCard()
+{
+  /*Removes the subject card of the current subject*/
+
+  //Searching for the required subject card
+  let a;
+  for(a = 0; a < subjectCards.length; ++a)
+  {
+    if(subjectCards[a].id == currSubject)
+    {
+      subjectCards[a].remove();
+      break;
+    }
+  }
+
+  subjectCards.splice(a,1); //Removing the card from the array
+
 }
 
 /************************Setting Click Listeners********************/

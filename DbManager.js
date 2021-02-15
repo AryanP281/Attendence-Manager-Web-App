@@ -30,7 +30,7 @@ function getSubjectId(subjectName)
                     resolve(result[0][`${SUBJECT_TABLE_PK}`]); //The subject exists
             }
         })
-    })
+    });
 }
 
 function generateNewSubjectId()
@@ -46,7 +46,7 @@ function generateNewSubjectId()
             else
                 resolve(result[0][`COUNT(${SUBJECT_TABLE_PK})`]);
         })
-    })
+    });
 }
 
 function addNewSubject(subject)
@@ -62,15 +62,15 @@ function addNewSubject(subject)
             else
                 resolve();
         })
-    })
+    });
 }
 
 function checkIfUserSubscribed(userEmail, subjectId)
 {
     /*Checks if the user is subscribed to the given subject*/
 
-    const sqlQuery = `SELECT COUNT(*) FROM ${USER_SUBJECT_REL_TABLE} WHERE ${USER_SUBJECT_REL_PK[0]}='userEmail' AND 
-    ${USER_SUBJECT_REL_PK[0]}=subjectId`;
+    const sqlQuery = `SELECT COUNT(*) FROM ${USER_SUBJECT_REL_TABLE} WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND 
+    ${USER_SUBJECT_REL_PK[0]}=${subjectId}`;
 
     return new Promise((resolve,reject) => {
         APP.dbConn.query(sqlQuery, (error,results,fields) => {
@@ -79,7 +79,7 @@ function checkIfUserSubscribed(userEmail, subjectId)
             else
                 resolve(results[0]["COUNT(*)"] != 0);
         })
-    })
+    });
 }
 
 function subscribeUserToSubject(userEmail,subject)
@@ -95,7 +95,7 @@ function subscribeUserToSubject(userEmail,subject)
             else
                 resolve();
         })
-    })
+    });
 }
 
 function getAllSubscribed(userEmail)
@@ -130,7 +130,7 @@ function markPresent(userEmail, subjectId)
             else
                 resolve();
         })
-    })
+    });
 }
 
 function markAbsent(userEmail, subjectId)
@@ -146,14 +146,55 @@ function markAbsent(userEmail, subjectId)
             else
                 resolve();
         })
-    })
+    });
 }
 
 function unsubscribeUser(userEmail, subjectId)
 {
     /*Unsubscribes the user from the given subject*/
 
-    
+    const sqlQuery = `DELETE FROM ${USER_SUBJECT_REL_TABLE} WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId}`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (error) => {
+            if(error)
+                reject(error);
+            else
+                resolve();
+        })
+    });
+}
+
+function getSubjectSubscriptionsCount(subjectId)
+{
+    /*Gets the number of users subscribed to the given suject*/
+
+    const sqlQuery = `SELECT COUNT(*) FROM ${USER_SUBJECT_REL_TABLE} WHERE ${USER_SUBJECT_REL_PK[1]}=${subjectId}`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (error, results, fields) => {
+            if(error)
+                reject(error);
+            else
+                resolve(results[0]["COUNT(*)"]);
+        })
+    });
+}
+
+function deleteSubject(subjectId)
+{
+    /*Deletes the given subject from the database*/
+
+    const sqlQuery = `DELETE FROM ${SUBJECT_TABLE} WHERE ${SUBJECT_TABLE_PK}=${subjectId}`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (error) => {
+            if(error)
+                reject(error);
+            else
+                resolve();
+        })
+    });
 }
 
 /***********************Exports***********************/
@@ -165,3 +206,6 @@ module.exports.subscribeUserToSubject = subscribeUserToSubject;
 module.exports.getAllSubscribed = getAllSubscribed;
 module.exports.markPresent = markPresent;
 module.exports.markAbsent = markAbsent;
+module.exports.unsubscribeUser = unsubscribeUser;
+module.exports.getSubjectSubscriptionsCount = getSubjectSubscriptionsCount
+module.exports.deleteSubject = deleteSubject;

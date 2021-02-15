@@ -243,7 +243,23 @@ router.post("/absent/:id", (req, resp) => {
 router.get("/deleteSubject/:id", (req, resp) => {
     /*Unsubscribes the user from given subject*/
 
-    
+    const userEmail = req.cookies[`${USER_ID_COOKIE_KEY}`]; //Getting the user's email
+    if(userEmail)
+    {
+        const unsubscribePromise = DB.unsubscribeUser(userEmail, req.params.id);
+
+        unsubscribePromise.then(() => {
+            //Getting the number of subscriptions to the subject
+            resp.sendStatus(200);
+            return DB.getSubjectSubscriptionsCount(req.params.id);
+        })
+        .then((count) => {
+            if(count == 0)
+                return DB.deleteSubject(req.params.id);
+        })
+        .catch((err) => console.log(err));
+    }
+
 })
 
 /***********************Exports*************************/
