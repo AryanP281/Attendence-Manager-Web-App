@@ -3,13 +3,16 @@
 const EXPRESS = require("express");
 const AUTH = require("../AuthManager");
 const DB = require("../DbManager");
+const SERVICES = require("../Services");
 
 /***********************Initialization************************/
 const router = EXPRESS.Router(); //Creating the router
-const PASSWORD_MIN_LEN = 6;
 
 /***********************Constants*************************/
+const PASSWORD_MIN_LEN = 6;
 const USER_ID_COOKIE_KEY = "email"; //The key of the cookie used for storing the logged users email
+const PRESENT_LOG_FLAG = '0';
+const ABSENT_LOG_FLAG = '1';
 
 /*************************Helper Functions****************************/
 function validEmail(email)
@@ -102,6 +105,27 @@ function subscribeUser(userEmail, subject, resp)
 
 }
 
+function generateMonthLogsObj(logs)
+{
+    /*Creates and returns an object with the given month logs*/
+
+    const map = new Map(); //Map for storing the day wise logs
+
+    //Initializing the map
+    for(let a = 1; a <= 31; ++a)
+    {
+        map.set(a,[0,0]); //Initializng the day's logs to 0 presents and 0 absents
+    }
+
+    logs.forEach((log) => {
+        const date = log["timestamp"].getDate(); //Getting the logs date
+        map.get(date)[parseInt(log["flag"])]++;
+    });
+
+    //Returning the logs object
+    return Object.fromEntries(map);
+}
+
 /*************************Routing****************************/
 router.get("/", (req,resp) => {
 
@@ -157,7 +181,7 @@ router.post("/register", (req, resp) => {
     if(validEmail(email))
     {
         //Checking if password length is valid
-        if(req.body.signup_pss.length >= 6)
+        if(req.body.signup_pss.length >= PASSWORD_MIN_LEN)
         {
             //Checking if the email already exists
             const dbPromise = AUTH.userExists(email);
@@ -225,9 +249,19 @@ router.post("/present/:id", (req, resp) => {
     
     /*Increases the attendence of the given subject for the user*/
 
-    const subjectAttendencePromise = DB.markPresent(req.cookies[`${USER_ID_COOKIE_KEY}`], req.params.id);
+    const userEmail = req.cookies[`${USER_ID_COOKIE_KEY}`]; //Getting the user's email
 
-    subjectAttendencePromise.then(() => resp.redirect("/")).catch((err) => console.log(err));
+    if(userEmail)
+    {
+        const subjectAttendencePromise = DB.markPresent(userEmail, req.params.id);
+
+        subjectAttendencePromise.then(() => {
+            //Saving the attendence log
+            return DB.saveLog(userEmail, req.params.id, PRESENT_LOG_FLAG);
+        })
+        .then(() => resp.redirect("/"))
+        .catch((err) => console.log(err));
+    }
 
 });
 
@@ -235,9 +269,18 @@ router.post("/absent/:id", (req, resp) => {
     
     /*Decreases the attendence of the given subject for the user*/
 
-    const subjectAttendencePromise = DB.markAbsent(req.cookies[`${USER_ID_COOKIE_KEY}`], req.params.id);
+    const userEmail = req.cookies[`${USER_ID_COOKIE_KEY}`]; //Getting the user's email
 
-    subjectAttendencePromise.then(() => resp.redirect("/")).catch((err) => console.log(err));
+    if(userEmail)
+    {
+        const subjectAttendencePromise = DB.markAbsent(req.cookies[`${USER_ID_COOKIE_KEY}`], req.params.id);
+        subjectAttendencePromise.then(() => {
+                //Saving the attendence log
+                return DB.saveLog(userEmail, req.params.id, ABSENT_LOG_FLAG);
+            })
+            .then(() => resp.redirect("/"))
+            .catch((err) => console.log(err));
+    }
 });
 
 router.get("/deleteSubject/:id", (req, resp) => {
@@ -259,6 +302,61 @@ router.get("/deleteSubject/:id", (req, resp) => {
         })
         .catch((err) => console.log(err));
     }
+    else
+        resp.redirect("/login");
+
+})
+
+router.get("/logs/:subject/:year/:month", (req,resp) => {
+
+    const userEmail = req.cookies[`${USER_ID_COOKIE_KEY}`]; //Getting the user's email
+    if(userEmail)
+    {
+        const subjectId = req.params.subject;
+        const year = parseInt(req.params.year);
+        const month = parseInt(req.params.month);
+
+        const logsPromise = DB.getMonthsLogs(userEmail,subjectId,{year:year,month:month});
+        logsPromise.then((result) => {
+            //Creating an object containing the logs
+            const obj = generateMonthLogsObj(result);
+            
+            resp.json(obj); //Sending the json object as response
+            
+        }).catch((err) => console.log(err));
+    }
+    else
+        resp.redirect("/login");
+})
+
+router.get("/forgotpassword", (req, resp) => {
+    /*Displays the forgot password page*/
+
+    //Redirecting the user to home page as he is already logged in
+    if(req.cookies[`${USER_ID_COOKIE_KEY}`])
+        resp.redirect("/");
+    
+    resp.render("forgotPassword");
+})
+
+router.post("/forgotpassword", (req,resp) => {
+    
+    /*Handles forgot password request*/
+
+    //Redirecting the user to home page as he is already logged in
+    if(req.cookies[`${USER_ID_COOKIE_KEY}`])
+        resp.redirect("/");
+
+    //Checking if the given email account is registered
+    const email = req.body.user_email;
+    const authPromise = AUTH.userExists(email);
+    authPromise.then((userExists) => {
+        if(!userExists)
+            resp.render("forgotPassword", {error:"Entered email does not exist"}); //Showing error message as user with email is not registered
+        else
+            SERVICES.sendPasswordResetLink("aryanpathare281@gmail.com");
+    })
+    .catch((err) => console.log(err));
 
 })
 

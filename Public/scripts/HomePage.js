@@ -8,6 +8,9 @@ let currMonth; //The currently displayed month in the calendar
 let currYear; //The currently displayed year in the calendar
 
 let currSubject; //The id of the currently viewed subject
+let currCell; //The currently clicked cell
+
+let currLogs = {subject:undefined,year:undefined,month:undefined,logs:null}; //The current subject's logs for the current month
 
 /************************Functions********************/
 function logoutClick()
@@ -36,7 +39,7 @@ function initializeCalendar()
   
   //Setting the global vars
   currYear = currDate.getFullYear();
-  currMonth = currDate.getMonth()+1;
+  currMonth = currDate.getMonth();
 
   //Creating and populating the calendar cells
   let html = ""; //The html string for the calendar cells to be added
@@ -47,11 +50,15 @@ function initializeCalendar()
     if(i < 7)
       day = DAYS_OF_WEEK[(6+firstDay+i)%7];
 
-    html = `<div class="calendar_cell"><p id="day">${day}</p><p id="date">${i+1}</p>`;
+    html = `<div class="calendar_cell" id="cell_${i+1}"><p id="day">${day}</p><p id="date">${i+1}</p></div>`;
 
     //Adding the element to the calendar
     calendarDiv.insertAdjacentHTML("beforeend", html);
   }
+
+  //Setting click listeners for the calender cells
+  const cells = document.querySelectorAll(".calendar_cell");
+  cells.forEach((cell) => cell.addEventListener("click", (event) => calendarCellClicked(event.target)));
 
   //Setting the calendar header
   document.getElementById("calendar_title").textContent = `${MONTHS_OF_YEAR[currDate.getMonth()]}, ${currDate.getFullYear()}`;
@@ -71,8 +78,12 @@ function updateCalendar(year, month)
 {
   /*Updates the calendar to display the given month*/
 
+  //Deselecting the previously selected cell (if any)
+  if(currCell)
+    currCell.className = "calendar_cell";
+
   const calendarDiv = document.getElementById("calendar_body"); //Getting the calendar division
-  const cells = calendarDiv.getElementsByClassName("calendar_cell"); //Getting the cells in the calendar
+  let cells = calendarDiv.getElementsByClassName("calendar_cell"); //Getting the cells in the calendar
 
   //Getting the month details
   const totalDays = getDaysInMonth(month, year); //The total days in the given month
@@ -82,11 +93,20 @@ function updateCalendar(year, month)
   if(cells.length < totalDays)
   {
     let html = ""; //The html for the new cells
+    const originalCellsCount = cells.length;
     for(let day = cells.length; day < totalDays; ++day)
     {
-      html = `<div class="calendar_cell"><p id="date">${day+1}</p>`;
+      html = `<div class="calendar_cell" id="${day+1}"><p id="date">${day+1}</p></div>`;
       calendarDiv.insertAdjacentHTML("beforeend", html);
     }
+
+    //Adding click listeners to the new cells
+    cells = calendarDiv.getElementsByClassName("calendar_cell"); //Getting the updated cells list
+    for(let a = originalCellsCount; a < totalDays; ++a)
+    {
+      cells[a].addEventListener("click", (event) => calendarCellClicked(event.target));
+    }
+
   }
   else if(cells.length > totalDays)
   {
@@ -138,24 +158,28 @@ function showSubjectDetails(clickedCard)
 {
   /*Displays the subject details for the clicked card*/
 
-  //Setting up the calendar
-  if(!calendarInitialzed)
+  //Checking if the subject card was clicked of one of its children was clicked
+  if(clickedCard.className === "subject_card")
   {
-    //Calendar has not been created
-    initializeCalendar();
-  }
-  else
-  {
-    //Calendar has already been created
-    const currDate = new Date();
-    updateCalendar(currDate.getFullYear(), currDate.getMonth());
-  }
+    //Saving the subject id
+    currSubject = clickedCard.id;
 
-  //Displaying the details area
-  document.getElementById("subject_details_area").style.opacity = 1;
+    //Setting up the calendar
+    if(!calendarInitialzed)
+    {
+      //Calendar has not been created
+      initializeCalendar();
+    }
+    else
+    {
+      //Calendar has already been created
+      const currDate = new Date(); //Getting the current date
+      updateCalendar(currDate.getFullYear(), currDate.getMonth());
+    }
 
-  //Saving the subject id
-  currSubject = clickedCard.id;
+    //Displaying the details area
+    document.getElementById("subject_details_area").style.opacity = 1;
+  }
 }
 
 function deleteSubject()
@@ -184,6 +208,73 @@ function removeSubjectCard()
 
   subjectCards.splice(a,1); //Removing the card from the array
 
+}
+
+function calendarCellClicked(target)
+{
+  /*Handles clicks on the calendar cells */
+
+  //Deselecting the previous cell
+  if(currCell)
+    currCell.className = "calendar_cell";
+
+  //Checking if the click target is the calendar_cell div or on of its children
+  const parent = target.parentElement; //Getting the target's parent element
+  if(parent.className === "calendar_cell")
+  {
+    //The target is the cells child
+    parent.className = "calendar_cell_selected";
+
+    currCell = parent;
+  }
+  else
+  {
+    //The target is the cell div
+    target.className = "calendar_cell_selected";
+
+    currCell = target;
+  }
+
+  //Loading the logs if required
+  if(!currLogs || currLogs.subject != currSubject || !currLogs.year || currLogs.year != currYear || !currLogs.month || currLogs.month != currMonth)
+  {
+    console.log("Fetching Logs");
+    fetchLogs(new Date(currYear,currMonth), () => {
+      //Updating the details display labels
+      console.log(currLogs)
+      const date = parseInt(currCell.id.split('_')[1]); //Getting the date of the month represented by the cell
+      document.getElementById("presents").textContent = `Present: ${currLogs.logs[`${date}`][0]}`;
+      document.getElementById("absents").textContent = `Absent: ${currLogs.logs[`${date}`][1]}`;
+    });
+  }
+  else 
+  {
+    //Displaying details for the selected date
+    const date = parseInt(currCell.id.split('_')[1]); //Getting the date of the month represented by the cell
+    document.getElementById("presents").textContent = `Present: ${currLogs.logs[`${date}`][0]}`;
+    document.getElementById("absents").textContent = `Absent: ${currLogs.logs[`${date}`][1]}`;
+  }
+
+}
+
+function fetchLogs(date, callback)
+{
+  /*Fetchs logs for the given date and current subject from server. Calls the provided callback on completion.*/
+
+  console.log(date.getFullYear() + " " + date.getMonth())
+  const fetchPromise = fetch(`/logs/${currSubject}/${date.getFullYear()}/${date.getMonth()+1}`);
+  fetchPromise.then((resp) => resp.json())
+    .then((data) => {
+      //Saving the logs
+      currLogs.subject = currSubject;
+      currLogs.year = date.getFullYear();
+      currLogs.month = date.getMonth()+1;
+      currLogs.logs = data;
+
+      //Callback
+      callback();
+    })
+    .catch((err) => console.log(err));
 }
 
 /************************Setting Click Listeners********************/

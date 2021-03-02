@@ -10,3 +10,5 @@ CREATE TABLE Takes(email VARCHAR(255), subjectId INT, totalLecs INT NOT NULL DEF
 attendedLecs INT NOT NULL DEFAULT 0, target INT NOT NULL DEFAULT 100, PRIMARY KEY(email,SubjectId), 
 FOREIGN KEY (email) REFERENCES UserCreds(email) ON DELETE CASCADE, 
 FOREIGN KEY (subjectId) REFERENCES Subject(id) ON DELETE CASCADE);
+
+CREATE TABLE Logs(email VARCHAR(255), subjectId INT, flag CHAR(1), timestamp TIMESTAMP, PRIMARY KEY(email,subjectId, timestamp), FOREIGN KEY (email) REFERENCES UserCreds(email) ON DELETE CASCADE, FOREIGN KEY (subjectId) REFERENCES Subject(id) ON DELETE CASCADE);

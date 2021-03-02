@@ -30,15 +30,15 @@ function userExists(email)
 {
     /*Checks if given email already exists in database*/
 
-    const sqlQuery = `SELECT * FROM UserCreds WHERE email='${email}';`;
+    const sqlQuery = `SELECT COUNT(*) FROM UserCreds WHERE email='${email}';`;
 
     return new Promise((resolve,reject) => {
-        APP.dbConn.query(sqlQuery, (error, result, fields) => {
+        APP.dbConn.query(sqlQuery, (error, results, fields) => {
             if(error)
                 reject(error);
             else
             {
-                resolve(result.length != 0);
+                resolve(parseInt(results[0]["COUNT(*)"]) != 0);
             }
         })
     })

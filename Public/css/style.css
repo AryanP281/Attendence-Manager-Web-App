@@ -30,13 +30,11 @@ body{
 
 #home_working_area{
     display: block;
-    background-color: blue;
     height: 100%;
 }
 
 #subject_list_area{
     display: inline;
-    background-color: chartreuse;
     width: 50%;
     height: 100%;
     position:absolute;
@@ -46,20 +44,17 @@ body{
 
 #subject_details_area{
     display: inline;
-    background-color: teal;
     width: 50%;
     height: 100%;
     position: absolute;
     opacity: 0;
     right: 0;
-    outline: 2px solid yellow;
     overflow-y: hidden;
 }
 
 
 #subject_cards {
     display: block;
-    background-color: blueviolet;
     height: 100%;
 }
 
@@ -142,6 +137,19 @@ body{
     text-align: center;
 }
 
+.calendar_cell_selected{
+    display: inline;
+    background-color:#3598dc;
+    padding: 16px;
+    border: 2px solid black;
+    text-align: center;
+}
+
+#date_details{
+    display: block;
+    padding: 5%;
+}
+
 .auth_form_area
 {
     display: block;
@@ -161,6 +169,7 @@ body{
     display: block;
     font-size: 50px;
     color: grey;
+    margin-bottom: 8px;
 }
 
 .auth_textbox{
@@ -176,7 +185,7 @@ body{
 .auth_submit{
     display: block;
     margin-bottom: 10px;
-    margin-top: 10px;
+    margin-top: 25px;
     width: 94%;
     padding:8px;
     background-color: #3598dc;

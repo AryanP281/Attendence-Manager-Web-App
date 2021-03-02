@@ -10,6 +10,9 @@ const USER_SUBJECT_REL_TABLE = "Takes";
 const USER_SUBJECT_REL_PK = ["email", "subjectId"];
 const USER_SUBJECT_REL_FIELDS = ["totalLecs", "attendedLecs", "target"];
 
+const LOGS_TABLE = "Logs";
+const LOGS_TABLE_PK = ["email","subjectId","timestamp"];
+
 /***********************Functions***********************/
 
 function getSubjectId(subjectName)
@@ -197,6 +200,38 @@ function deleteSubject(subjectId)
     });
 }
 
+function saveLog(userEmail, subjectId, flag)
+{
+    /*Saves the given log in the database*/
+
+    const sqlQuery = `INSERT INTO ${LOGS_TABLE} VALUES ('${userEmail}', ${subjectId}, '${flag}', CURRENT_TIMESTAMP)`;
+
+    return new Promise((resolve,reject) => {
+        APP.dbConn.query(sqlQuery, (error) => {
+            if(error)
+                reject(error);
+            else
+                resolve();
+        })
+    });
+}
+
+function getMonthsLogs(userEmail,subjectId,date)
+{
+    /*Gets the user's logs for the subject in the given month*/
+
+    const sqlQuery = `SELECT * FROM ${LOGS_TABLE} WHERE ${LOGS_TABLE_PK[0]}='${userEmail}' AND ${LOGS_TABLE_PK[1]}=${subjectId} AND YEAR(${LOGS_TABLE_PK[2]})='${date.year}' AND MONTH(${LOGS_TABLE_PK[2]})='${date.month}'`;
+
+    return new Promise((resolve,reject) => {
+        APP.dbConn.query(sqlQuery, (error,result,fields) => {
+            if(error)
+                reject(error);
+            else
+                resolve(result);
+        })
+    });
+}
+
 /***********************Exports***********************/
 module.exports.getSubjectId = getSubjectId;
 module.exports.generateNewSubjectId = generateNewSubjectId;
@@ -209,3 +244,5 @@ module.exports.markAbsent = markAbsent;
 module.exports.unsubscribeUser = unsubscribeUser;
 module.exports.getSubjectSubscriptionsCount = getSubjectSubscriptionsCount
 module.exports.deleteSubject = deleteSubject;
+module.exports.saveLog = saveLog;
+module.exports.getMonthsLogs = getMonthsLogs;
