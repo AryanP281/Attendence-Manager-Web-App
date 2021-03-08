@@ -13,6 +13,9 @@ const USER_SUBJECT_REL_FIELDS = ["totalLecs", "attendedLecs", "target"];
 const LOGS_TABLE = "Logs";
 const LOGS_TABLE_PK = ["email","subjectId","timestamp"];
 
+const PSS_RESET_TABLE = "PasswordResetTokens";
+const PSS_RESET_TABLE_PK = "email";
+
 /***********************Functions***********************/
 
 function getSubjectId(subjectName)
@@ -232,6 +235,21 @@ function getMonthsLogs(userEmail,subjectId,date)
     });
 }
 
+function savePasswordResetToken(token,userEmail)
+{
+    /*Saves the password reset token and the corresponding email in the db*/
+
+    const sqlQuery = `INSERT INTO ${PSS_RESET_TABLE} VALUES('${userEmail}', '${token}')`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (err) => {
+            if(err)
+                reject(err);
+            resolve();
+        })
+    });
+}
+
 /***********************Exports***********************/
 module.exports.getSubjectId = getSubjectId;
 module.exports.generateNewSubjectId = generateNewSubjectId;
@@ -246,3 +264,4 @@ module.exports.getSubjectSubscriptionsCount = getSubjectSubscriptionsCount
 module.exports.deleteSubject = deleteSubject;
 module.exports.saveLog = saveLog;
 module.exports.getMonthsLogs = getMonthsLogs;
+module.exports.savePasswordResetToken = savePasswordResetToken;

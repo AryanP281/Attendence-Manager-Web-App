@@ -44,8 +44,7 @@ function sendPasswordResetLink(targetEmail)
         from: "gameologist281@gmail.com",
         to: targetEmail,
         subject: "Password Reset Link",
-        text: "This is password reset link",
-        html: "<h1> Sent using nodemailer </h1>"
+        text: `Click on the link to reset password. `,
     };
 
     //Sending the email

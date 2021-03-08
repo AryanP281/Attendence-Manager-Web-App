@@ -12,3 +12,6 @@ FOREIGN KEY (email) REFERENCES UserCreds(email) ON DELETE CASCADE,
 FOREIGN KEY (subjectId) REFERENCES Subject(id) ON DELETE CASCADE);
 
 CREATE TABLE Logs(email VARCHAR(255), subjectId INT, flag CHAR(1), timestamp TIMESTAMP, PRIMARY KEY(email,subjectId, timestamp), FOREIGN KEY (email) REFERENCES UserCreds(email) ON DELETE CASCADE, FOREIGN KEY (subjectId) REFERENCES Subject(id) ON DELETE CASCADE);
+
+CREATE TABLE PasswordResetTokens(email VARCHAR(255) PRIMARY KEY, token CHAR(40) NOT NULL, FOREIGN KEY (email) REFERENCES UserCreds(email) ON DELETE CASCADE);
+

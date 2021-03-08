@@ -32,7 +32,7 @@ app.use(COOKIE());
 app.use("/",require("./Routes/Webpage"));
 
 /*************************Script******************************/
-app.listen(SERVER_PORT, () => console.log(`Server started on port ${SERVER_PORT}`)); //Starting the server
+app.listen(SERVER_PORT,"0.0.0.0", () => console.log(`Server started on port ${SERVER_PORT}`)); //Starting the server
 
 //Initializing MySql
 const dbConnection = MYSQL.createConnection({host:"localhost", user:"nodeuser",password:"MQL_nd_210132",database:"AttendenceManager"}); //Creating a connection to MySql

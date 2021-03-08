@@ -4,6 +4,7 @@ const EXPRESS = require("express");
 const AUTH = require("../AuthManager");
 const DB = require("../DbManager");
 const SERVICES = require("../Services");
+const CRYPTO = require("crypto");
 
 /***********************Initialization************************/
 const router = EXPRESS.Router(); //Creating the router
@@ -124,6 +125,47 @@ function generateMonthLogsObj(logs)
 
     //Returning the logs object
     return Object.fromEntries(map);
+}
+
+function handlePasswordReset(userEmail, resp)
+{
+    /*Handles password reset requests*/
+
+    //Checking if user account exists
+    const userExistenceCheckPromise = AUTH.userExists(userEmail);
+    userExistenceCheckPromise.then((userExists) => {
+        if(!userExists)
+            resp.render("forgotPassword", {error:"Entered email is not registered"}); //Displaying page with error message as user does not exist
+        
+        //Getting randomly generated token
+        return generateRandomToken(256);
+    })
+    .then((token) => DB.savePasswordResetToken(token, userEmail)) //Saving the reset token and the corresponding email in the database
+    .then(() => {
+        //Sending the user password reset email
+        SERVICES.sendPasswordResetLink(userEmail)
+
+        //Redirecting the user to the confirmation page
+        resp.render("passwordSentConfirmation");
+    })
+    .catch((err) => console.log(err));
+
+}
+
+function generateRandomToken(size)
+{
+    /*Uses crypto module to generate a token of given size*/
+    
+    return new Promise((resolve, reject) => {
+        CRYPTO.randomBytes(size, (err,buffer) => {
+            if(err)
+                reject(err);
+            
+            //Generating a token from the random bytes
+            const token = CRYPTO.createHash("sha1").update(buffer).digest("hex");
+            resolve(token);
+        })
+    });
 }
 
 /*************************Routing****************************/
@@ -349,14 +391,7 @@ router.post("/forgotpassword", (req,resp) => {
 
     //Checking if the given email account is registered
     const email = req.body.user_email;
-    const authPromise = AUTH.userExists(email);
-    authPromise.then((userExists) => {
-        if(!userExists)
-            resp.render("forgotPassword", {error:"Entered email does not exist"}); //Showing error message as user with email is not registered
-        else
-            SERVICES.sendPasswordResetLink("aryanpathare281@gmail.com");
-    })
-    .catch((err) => console.log(err));
+    handlePasswordReset(email, resp);
 
 })
 
