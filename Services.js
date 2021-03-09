@@ -35,7 +35,7 @@ const nodemailerTransporter = NODEMAILER.createTransport({
 }); //Creating a nodemailer transporter for sending emails
 
 /***********************Functions************************/
-function sendPasswordResetLink(targetEmail)
+function sendPasswordResetLink(targetEmail, resetLink)
 {
     /*Sends the password reset link to the given email*/
 
@@ -44,7 +44,7 @@ function sendPasswordResetLink(targetEmail)
         from: "gameologist281@gmail.com",
         to: targetEmail,
         subject: "Password Reset Link",
-        text: `Click on the link to reset password. `,
+        text: `Click on the link to reset password: ${resetLink}`,
     };
 
     //Sending the email

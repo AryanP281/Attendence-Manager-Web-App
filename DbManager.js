@@ -245,7 +245,45 @@ function savePasswordResetToken(token,userEmail)
         APP.dbConn.query(sqlQuery, (err) => {
             if(err)
                 reject(err);
-            resolve();
+            else
+                resolve();
+        })
+    });
+}
+
+function getPasswordResetToken(userEmail)
+{
+    /*Returns the password reset token saved for the given email*/
+
+    const sqlQuery = `SELECT * FROM ${PSS_RESET_TABLE} WHERE ${PSS_RESET_TABLE_PK}='${userEmail}'`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (err,result) => {
+            if(err)
+                reject(err);
+            else
+            {
+                if(result.length == 0)
+                    resolve(null);
+                else
+                    resolve(result[0]["token"]);
+            }
+        })
+    });
+}
+
+function updatePasswordResetToken(userEmail, newToken)
+{
+    /*Changes the password reset token*/
+
+    const sqlQuery = `UPDATE ${PSS_RESET_TABLE} SET token='${newToken}' WHERE ${PSS_RESET_TABLE_PK}='${userEmail}'`;
+
+    return new Promise((resolve,reject) => {
+        APP.dbConn.query(sqlQuery, (err) => {
+            if(err)
+                reject(err);
+            else
+                resolve();
         })
     });
 }
@@ -265,3 +303,5 @@ module.exports.deleteSubject = deleteSubject;
 module.exports.saveLog = saveLog;
 module.exports.getMonthsLogs = getMonthsLogs;
 module.exports.savePasswordResetToken = savePasswordResetToken;
+module.exports.getPasswordResetToken = getPasswordResetToken;
+module.exports.updatePasswordResetToken = updatePasswordResetToken;

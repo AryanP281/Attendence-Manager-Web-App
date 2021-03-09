@@ -127,9 +127,11 @@ function generateMonthLogsObj(logs)
     return Object.fromEntries(map);
 }
 
-function handlePasswordReset(userEmail, resp)
+function handlePasswordReset(userEmail, req, resp)
 {
     /*Handles password reset requests*/
+
+    let passwordResetToken = ""; //The password reset token
 
     //Checking if user account exists
     const userExistenceCheckPromise = AUTH.userExists(userEmail);
@@ -137,13 +139,28 @@ function handlePasswordReset(userEmail, resp)
         if(!userExists)
             resp.render("forgotPassword", {error:"Entered email is not registered"}); //Displaying page with error message as user does not exist
         
-        //Getting randomly generated token
+        //Generating new token
         return generateRandomToken(256);
     })
-    .then((token) => DB.savePasswordResetToken(token, userEmail)) //Saving the reset token and the corresponding email in the database
+    .then((newToken) => {
+        passwordResetToken = newToken;
+        
+        //Checking if token already exists and needs to be generated
+        return DB.getPasswordResetToken(userEmail);
+    })
+    .then((oldToken) => {
+        //Token does not exist
+        if(oldToken == null)
+            return DB.savePasswordResetToken(passwordResetToken, userEmail); //Adding the new token
+        else //Token already exists
+            return DB.updatePasswordResetToken(userEmail, passwordResetToken); //Updating the token
+    })
     .then(() => {
+        
+        const passwordResetLink = `${req.baseUrl}/passwordreset/${passwordResetToken}`; //The password reset link to be sent by email
+        
         //Sending the user password reset email
-        SERVICES.sendPasswordResetLink(userEmail)
+        SERVICES.sendPasswordResetLink(userEmail, passwordResetLink)
 
         //Redirecting the user to the confirmation page
         resp.render("passwordSentConfirmation");
@@ -391,7 +408,7 @@ router.post("/forgotpassword", (req,resp) => {
 
     //Checking if the given email account is registered
     const email = req.body.user_email;
-    handlePasswordReset(email, resp);
+    handlePasswordReset(email, req, resp);
 
 })
 
