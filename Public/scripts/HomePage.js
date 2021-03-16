@@ -191,6 +191,15 @@ function deleteSubject()
   deletePromise.then(() => removeSubjectCard()).catch((err) => console.log(err));
 }
 
+function undoLastAction()
+{
+  /*Undoes the last action performed for the given subject*/
+
+  const requestPromise = fetch(`/undo/${currSubject}`);
+
+  requestPromise.then(() => window.location.href = "/");
+}
+
 function removeSubjectCard()
 {
   /*Removes the subject card of the current subject*/

@@ -52,7 +52,7 @@
         </div>
         <div id="subject_details_area">
             <div id="subject_toolbar">
-                <button style="float: left; height:100%;">Undo</button>
+                <button style="float: left; height:100%;" onclick="undoLastAction()">Undo</button>
                 <button style="float: right; height:100%" onclick="deleteSubject()">Delete</button>
             </div>
             <div id="calendar" style="display: block;">
@@ -75,24 +75,3 @@
 </body>
 </html>
 
-<!--
-<div id="new_subject_card">
-                <form action="/newSubject" method="POST">
-                    <div id="new_subject_dets">
-                        <label class="subject_card_title_txt">Subject Name:</label>
-                        <input type="text" id="new_subject_name" name="new_subject_name"><br>
-                        <div id="new_subject_att_dets">
-                            <label class="subject_card_attended_txt">Attended:</label>
-                            <input type="text" id="new_subject_attended" name="new_subject_attended">
-                            <label class="subject_card_total_txt">Total:</label>
-                            <input type="text" id="new_subject_total" name="new_subject_total">
-                            <label class="subject_card_target_txt">Target: </label>
-                            <input type="text" id="new_subject_target" name="new_subject_target">
-                        </div>
-                    </div>
-                    <div id="new_subject_controls">
-                        <input type="submit" id="new_subject_create_btn">
-                    </div>
-                </form>
-            </div>
-    -->

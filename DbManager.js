@@ -16,6 +16,26 @@ const LOGS_TABLE_PK = ["email","subjectId","timestamp"];
 const PSS_RESET_TABLE = "PasswordResetTokens";
 const PSS_RESET_TABLE_PK = "email";
 
+const PRESENT_LOG_FLAG = '0';
+const ABSENT_LOG_FLAG = '1';
+
+/***********************Helper Functions***********************/
+function getTimestamp()
+{
+    /*Generates and returns a string timestamp for saving in the database*/
+
+    const currDate = new Date(); //The current date
+
+    //Getting the date components
+    const dateComps = currDate.toString().split(' ');
+
+    //Generating the timestamp
+    const timestamp = `${currDate.getFullYear()}-${(currDate.getMonth()+1) < 10 ? '0' : ''}${currDate.getMonth()+1}-${(currDate.getDate()) < 10 ? '0' : ''}${currDate.getDate()} ${dateComps[4]}`;
+
+    return timestamp;
+}
+
+
 /***********************Functions***********************/
 
 function getSubjectId(subjectName)
@@ -92,7 +112,7 @@ function subscribeUserToSubject(userEmail,subject)
 {
     /*Subscribes the user to the given subject*/
 
-    const sqlQuery = `INSERT INTO ${USER_SUBJECT_REL_TABLE} VALUES ('${userEmail}',${subject.id},${subject.total},${subject.attended},${subject.target})`;
+    const sqlQuery = `INSERT INTO ${USER_SUBJECT_REL_TABLE} VALUES ('${userEmail}',${subject.id},${subject.total},${subject.attended},${subject.target}, NULL)`;
 
     return new Promise((resolve,reject) => {
         APP.dbConn.query(sqlQuery, (error) => {
@@ -206,13 +226,32 @@ function deleteSubject(subjectId)
 function saveLog(userEmail, subjectId, flag)
 {
     /*Saves the given log in the database*/
-
-    const sqlQuery = `INSERT INTO ${LOGS_TABLE} VALUES ('${userEmail}', ${subjectId}, '${flag}', CURRENT_TIMESTAMP)`;
+    
+    //Getting the timestamp for the log
+    const timestamp = getTimestamp();
+    
+    const sqlQuery = `INSERT INTO ${LOGS_TABLE} VALUES ('${userEmail}', ${subjectId}, '${flag}', '${timestamp}')`;
 
     return new Promise((resolve,reject) => {
-        APP.dbConn.query(sqlQuery, (error) => {
+        APP.dbConn.query(sqlQuery, (error, result) => {
             if(error)
                 reject(error);
+            else
+                resolve(timestamp);
+        })
+    });
+}
+
+function updateSubjectLastTimestamp(userEmail, subjectId, timestamp)
+{
+    /*Updates the last log timestamp corresponding for the given subject for the given user*/
+
+    const sqlQuery = `UPDATE ${USER_SUBJECT_REL_TABLE} SET lastTimestamp='${timestamp}' WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId}`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (err) => {
+            if(err)
+                reject(err);
             else
                 resolve();
         })
@@ -288,6 +327,78 @@ function updatePasswordResetToken(userEmail, newToken)
     });
 }
 
+function getLatestTimestamp(userEmail, subjectId)
+{
+    /*Returns the timestamp of the last action performed by the user for the given subject*/
+
+    const sqlQuery = `SELECT lastTimestamp FROM ${USER_SUBJECT_REL_TABLE} WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId}`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (error,result) => {
+            if(error)
+                reject(error);
+            else
+                resolve(result[0].lastTimestamp);
+        })
+    });
+}
+
+function getLog(userEmail, subjectId, timestamp)
+{
+    /*Returns the given log from database*/
+
+    const sqlQuery = `SELECT * FROM ${LOGS_TABLE} WHERE ${LOGS_TABLE_PK[0]}='${userEmail}' AND ${LOGS_TABLE_PK[1]}=${subjectId} AND ${LOGS_TABLE_PK[2]}='${timestamp}'`;
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (err,result) => {
+            if(err)
+                reject(err);
+            else
+                resolve(result[0]);
+        })
+    });
+}
+
+function removeLog(userEmail, subjectId, timestamp)
+{
+    /*Removes the given log form the database*/
+
+    const sqlQuery = `DELETE FROM ${LOGS_TABLE} WHERE ${LOGS_TABLE_PK[0]}='${userEmail}' AND ${LOGS_TABLE_PK[1]}=${subjectId} AND ${LOGS_TABLE_PK[2]}='${timestamp}'`;
+
+    return new Promise((resolve,reject) => {
+        APP.dbConn.query(sqlQuery, (err) => {
+            if(err)
+                reject(err);
+            else
+                resolve();
+        })
+    });
+}
+
+function clearLastTimestamp(userEmail, subjectId, flag)
+{
+    /*Clears the last timestamp and its effects for the given user and subject*/
+
+    let sqlQuery;
+    if(flag == ABSENT_LOG_FLAG)
+    {
+        sqlQuery = `UPDATE ${USER_SUBJECT_REL_TABLE} SET lastTimestamp=NULL, ${USER_SUBJECT_REL_FIELDS[0]}=${USER_SUBJECT_REL_FIELDS[0]}-1 WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId}`;
+    }
+    else
+    {
+        sqlQuery = `UPDATE ${USER_SUBJECT_REL_TABLE} SET lastTimestamp=NULL, ${USER_SUBJECT_REL_FIELDS[0]}=${USER_SUBJECT_REL_FIELDS[0]}-1,${USER_SUBJECT_REL_FIELDS[1]}=${USER_SUBJECT_REL_FIELDS[1]}-1 WHERE ${USER_SUBJECT_REL_PK[0]}='${userEmail}' AND ${USER_SUBJECT_REL_PK[1]}=${subjectId}`;
+    }
+
+    return new Promise((resolve, reject) => {
+        APP.dbConn.query(sqlQuery, (err) => {
+            if(err)
+                reject(err);
+            else
+                resolve();
+        });
+    });
+}
+
 /***********************Exports***********************/
 module.exports.getSubjectId = getSubjectId;
 module.exports.generateNewSubjectId = generateNewSubjectId;
@@ -301,7 +412,14 @@ module.exports.unsubscribeUser = unsubscribeUser;
 module.exports.getSubjectSubscriptionsCount = getSubjectSubscriptionsCount
 module.exports.deleteSubject = deleteSubject;
 module.exports.saveLog = saveLog;
+module.exports.updateSubjectLastTimestamp = updateSubjectLastTimestamp;
 module.exports.getMonthsLogs = getMonthsLogs;
 module.exports.savePasswordResetToken = savePasswordResetToken;
 module.exports.getPasswordResetToken = getPasswordResetToken;
 module.exports.updatePasswordResetToken = updatePasswordResetToken;
+module.exports.getLatestTimestamp = getLatestTimestamp;
+module.exports.getLog = getLog;
+module.exports.removeLog = removeLog;
+module.exports.clearLastTimestamp = clearLastTimestamp;
+module.exports.ABSENT_LOG_FLAG = ABSENT_LOG_FLAG;
+module.exports.PRESENT_LOG_FLAG = PRESENT_LOG_FLAG;

@@ -5,6 +5,7 @@ const AUTH = require("../AuthManager");
 const DB = require("../DbManager");
 const SERVICES = require("../Services");
 const CRYPTO = require("crypto");
+const { time } = require("console");
 
 /***********************Initialization************************/
 const router = EXPRESS.Router(); //Creating the router
@@ -12,8 +13,6 @@ const router = EXPRESS.Router(); //Creating the router
 /***********************Constants*************************/
 const PASSWORD_MIN_LEN = 6;
 const USER_ID_COOKIE_KEY = "email"; //The key of the cookie used for storing the logged users email
-const PRESENT_LOG_FLAG = '0';
-const ABSENT_LOG_FLAG = '1';
 
 /*************************Helper Functions****************************/
 function validEmail(email)
@@ -63,8 +62,6 @@ function checkUserCreds(result, user, resp)
 function handleNewSubject(subjectId,subject,userEmail,resp)
 {
     /*Adds the new subject to database if it doesnt exist. Finally, subscribes the logged user to the subject*/
-
-    console.log(subject);
 
     if(subjectId == -1)
     {
@@ -183,6 +180,53 @@ function generateRandomToken(size)
             resolve(token);
         })
     });
+}
+
+function addLog(userEmail, subjectId, flag, resp)
+{
+    /*Adds the given log to the database*/
+
+    const logPromise = DB.saveLog(userEmail, subjectId, flag);
+    logPromise.then((timestamp) => DB.updateSubjectLastTimestamp(userEmail, subjectId, timestamp))
+    .then(() => resp.redirect("/"))
+    .catch((err) => console.log(err));
+}
+
+function undoLastAction(userEmail, subjectId, resp)
+{
+    /*Undoes the last action performed by the user for the given subject*/
+
+    let actionType; //The type of the last performed action
+    let lastTimestamp; //The timestamp at which the action to be undone was performed
+
+    const timestampPromise = DB.getLatestTimestamp(userEmail, subjectId);
+    timestampPromise.then((timestamp) => {
+        if(timestamp === null)
+        {
+            resp.sendStatus(200);
+
+            //Breaking the promise chain
+            return Promise.reject("Break chain")
+        }
+        else
+        {    
+            //Converting the retrieved timestamp date object to the proper format
+            const timestampComps = timestamp.toString().split(' ');
+            lastTimestamp = `${timestamp.getFullYear()}-${(timestamp.getMonth()+1) < 10 ? '0' : ''}${timestamp.getMonth()+1}-${(timestamp.getDate()) < 10 ? '0' : ''}${timestamp.getDate()} ${timestampComps[4]}`;
+
+            //Getting the log to determine the type of action performed so as to revert its effects
+            return DB.getLog(userEmail, subjectId, lastTimestamp);
+        }
+    })
+    .then((log) => {
+        actionType = log.flag;
+
+        //Removing the log
+        return DB.removeLog(userEmail,subjectId,lastTimestamp);
+    })
+    .then(() => DB.clearLastTimestamp(userEmail,subjectId,actionType))
+    .then(() => resp.sendStatus(200))
+    .catch((err) => console.log(err));
 }
 
 /*************************Routing****************************/
@@ -312,13 +356,8 @@ router.post("/present/:id", (req, resp) => {
 
     if(userEmail)
     {
-        const subjectAttendencePromise = DB.markPresent(userEmail, req.params.id);
-
-        subjectAttendencePromise.then(() => {
-            //Saving the attendence log
-            return DB.saveLog(userEmail, req.params.id, PRESENT_LOG_FLAG);
-        })
-        .then(() => resp.redirect("/"))
+        const presentMarkingPromise = DB.markPresent(userEmail, req.params.id);
+        presentMarkingPromise.then(() => addLog(userEmail, req.params.id, DB.PRESENT_LOG_FLAG, resp))
         .catch((err) => console.log(err));
     }
 
@@ -332,13 +371,9 @@ router.post("/absent/:id", (req, resp) => {
 
     if(userEmail)
     {
-        const subjectAttendencePromise = DB.markAbsent(req.cookies[`${USER_ID_COOKIE_KEY}`], req.params.id);
-        subjectAttendencePromise.then(() => {
-                //Saving the attendence log
-                return DB.saveLog(userEmail, req.params.id, ABSENT_LOG_FLAG);
-            })
-            .then(() => resp.redirect("/"))
-            .catch((err) => console.log(err));
+        const absentMarkingPromise = DB.markAbsent(userEmail, req.params.id);
+        absentMarkingPromise.then(() => addLog(userEmail, req.params.id, DB.ABSENT_LOG_FLAG, resp))
+        .catch((err) => console.log(err));
     }
 });
 
@@ -412,5 +447,20 @@ router.post("/forgotpassword", (req,resp) => {
 
 })
 
+router.get(("/undo/:id"), (req, resp) => {
+
+    /*Undoes the last action performed for the given subject */
+
+    const userEmail = req.cookies[`${USER_ID_COOKIE_KEY}`]; //Getting the user's email
+    if(userEmail)
+    {
+        const subjectId = req.params.id; //The id of the subject
+
+        undoLastAction(userEmail, subjectId,resp);
+    }
+});
+
 /***********************Exports*************************/
 module.exports = router;
+
+
