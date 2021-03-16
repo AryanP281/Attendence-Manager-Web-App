@@ -67,6 +67,15 @@ body{
     padding: 4px;
 }
 
+.subject_card_clicked{
+    display: block;
+    background-color: gray;
+    border: 2px solid black;
+    height: 11%;
+    overflow-x: auto;
+    padding: 4px;
+}
+
 .subject_card_dets{
     display: inline;
 }

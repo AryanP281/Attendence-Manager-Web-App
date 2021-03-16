@@ -7,7 +7,7 @@ let calendarInitialzed = false; //Whether the calendar has been initalized befor
 let currMonth; //The currently displayed month in the calendar
 let currYear; //The currently displayed year in the calendar
 
-let currSubject; //The id of the currently viewed subject
+let currSubject = -1; //The id of the currently viewed subject
 let currCell; //The currently clicked cell
 
 let currLogs = {subject:undefined,year:undefined,month:undefined,logs:null}; //The current subject's logs for the current month
@@ -161,6 +161,10 @@ function showSubjectDetails(clickedCard)
   //Checking if the subject card was clicked of one of its children was clicked
   if(clickedCard.className === "subject_card")
   {
+    //Deselecting the previously selected card
+    if(currSubject != -1)
+      document.getElementById(currSubject).className = "subject_card";
+    
     //Saving the subject id
     currSubject = clickedCard.id;
 
@@ -179,6 +183,14 @@ function showSubjectDetails(clickedCard)
 
     //Displaying the details area
     document.getElementById("subject_details_area").style.opacity = 1;
+
+    //Changing the card appearance
+    clickedCard.className = "subject_card_clicked";
+
+    //Reseting the present and absent counters
+    document.getElementById("presents").textContent = "Presents:";
+    document.getElementById("absents").textContent = "Absents:"
+
   }
 }
 
